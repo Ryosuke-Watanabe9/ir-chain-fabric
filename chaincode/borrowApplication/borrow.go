@@ -25,13 +25,19 @@ type borrowApplication struct {
 	SystemNo          string `json:"systemNo"`
 	ProjectName       string `json:"projectName"`
 	DataQuantity      string `json:"dataQuantity"`
+	ReportingDate     string `json:"reportingDate"`
 	StartDate         string `json:"startDate"`
 	EndDate           string `json:"endDate"`
 	ApplicationStatus string `json:"applicationStatus"`
-	Registrant        string `json:"registrant"`
-	Rechecker         string `json:"rechecker"`
-	Reviewer          string `json:"reviewer"`
-	Authorizer        string `json:"authorizer"`
+	IRRegistrant      string `json:"irRegistrant"`
+	IRRechecker       string `json:"irRechecker"`
+	IRReviewer        string `json:"irReviewer"`
+	IRAuthorizer      string `json:"irAuthorizer"`
+	BKRegistrant      string `json:"bkRregistrant"`
+	BKRechecker       string `json:"bkRechecker"`
+	BKReviewer        string `json:"bkReviewer"`
+	BKAuthorizer      string `json:"bkAuthorizer"`
+	EvidenceValue     string `json:"evidenceValue"`
 }
 
 /*
@@ -74,7 +80,7 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 9 {
+	if len(args) != 15 {
 		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
@@ -95,12 +101,18 @@ func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, a
 		SystemNo:          args[0],
 		ProjectName:       args[1],
 		DataQuantity:      args[2],
-		StartDate:         args[3],
-		EndDate:           args[4],
-		Registrant:        args[5],
-		Rechecker:         args[6],
-		Reviewer:          args[7],
-		Authorizer:        args[8],
+		ReportingDate:     args[3],
+		StartDate:         args[4],
+		EndDate:           args[5],
+		IRRegistrant:      args[6],
+		IRRechecker:       args[7],
+		IRReviewer:        args[8],
+		IRAuthorizer:      args[9],
+		BKRegistrant:      args[10],
+		BKRechecker:       args[11],
+		BKReviewer:        args[12],
+		BKAuthorizer:      args[13],
+		EvidenceValue:     args[14],
 		ApplicationStatus: "0",
 	}
 
