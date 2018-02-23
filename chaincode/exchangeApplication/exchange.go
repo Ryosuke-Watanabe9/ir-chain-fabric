@@ -35,8 +35,9 @@ type exchangeApplication struct {
 	IRRechecker       string `json:"irRechecker"`
 	IRReviewer        string `json:"irReviewer"`
 	IRAuthorizer      string `json:"irAuthorizer"`
-	DataContent      string `json:"dataContent"`
+	DataContent       string `json:"dataContent"`
 	ApplicationStatus string `json:"applicationStatus"`
+	ApplicationType   string `json:"applicationType"`
 }
 
 /*
@@ -79,8 +80,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 15 {
-		return shim.Error("Incorrect number of arguments. Expecting 15")
+	if len(args) != 14 {
+		return shim.Error("Incorrect number of arguments. Expecting 14")
 	}
 
 	//get maxNumber of application
@@ -112,6 +113,7 @@ func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, a
 		IRAuthorizer:      args[12],
 		DataContent:       args[13],
 		ApplicationStatus: "20",
+		ApplicationType:   "exchange",
 	}
 
 	maxNumberAsBytes, _ = json.Marshal(maxNumber)
