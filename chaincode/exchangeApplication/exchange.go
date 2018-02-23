@@ -35,6 +35,7 @@ type exchangeApplication struct {
 	IRRechecker       string `json:"irRechecker"`
 	IRReviewer        string `json:"irReviewer"`
 	IRAuthorizer      string `json:"irAuthorizer"`
+	DataContent      string `json:"dataContent"`
 	ApplicationStatus string `json:"applicationStatus"`
 }
 
@@ -109,7 +110,7 @@ func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, a
 		IRRechecker:       args[10],
 		IRReviewer:        args[11],
 		IRAuthorizer:      args[12],
-		EvidenceValue:     args[13],
+		DataContent:       args[13],
 		ApplicationStatus: "20",
 	}
 
