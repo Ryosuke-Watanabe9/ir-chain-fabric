@@ -22,6 +22,7 @@ type MaxNumber struct {
 // borrowApplication Chaincode implementation
 type borrowApplication struct {
 	ApplicationNo     string `json:"applicationNo"`
+	Type              string `json:"type"`
 	SystemNo          string `json:"systemNo"`
 	ProjectName       string `json:"projectName"`
 	DataQuantity      string `json:"dataQuantity"`
@@ -74,6 +75,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.queryAllApplications(APIstub)
 	} else if function == "changeApplicationStatus" {
 		return s.changeApplicationStatus(APIstub, args)
+	} else if function == "setApplicationRoute" {
+		return s.setApplicationRoute(APIstub, args)
 	}
 	return shim.Error("Invalid Smart Contract function name.")
 }
@@ -81,7 +84,7 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 15 {
-		return shim.Error("Incorrect number of arguments. Expecting 6")
+		return shim.Error("Incorrect number of arguments. Expecting 15")
 	}
 
 	//get maxNumber of application
@@ -98,6 +101,7 @@ func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, a
 
 	var borrowApplication = borrowApplication{
 		ApplicationNo:     maxNumber.MaxApplicationNo,
+		Type:              "borrow",
 		SystemNo:          args[0],
 		ProjectName:       args[1],
 		DataQuantity:      args[2],
@@ -136,6 +140,27 @@ func (s *SmartContract) changeApplicationStatus(APIstub shim.ChaincodeStubInterf
 
 	json.Unmarshal(changeApplicationStatusAsBytes, &borrowApplication)
 	borrowApplication.ApplicationStatus = args[1]
+
+	changeApplicationStatusAsBytes, _ = json.Marshal(borrowApplication)
+	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) setApplicationRoute(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
+	}
+
+	changeApplicationStatusAsBytes, _ := APIstub.GetState(args[0])
+	borrowApplication := borrowApplication{}
+
+	json.Unmarshal(changeApplicationStatusAsBytes, &borrowApplication)
+	borrowApplication.BKRegistrant = args[1]
+	borrowApplication.BKRechecker = args[2]
+	borrowApplication.BKReviewer = args[3]
+	borrowApplication.BKAuthorizer = args[4]
 
 	changeApplicationStatusAsBytes, _ = json.Marshal(borrowApplication)
 	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
