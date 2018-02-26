@@ -40,16 +40,9 @@ type exchangeApplication struct {
 	ApplicationType   string `json:"applicationType"`
 }
 
-type borrowData struct {
-	BorrowNo string `json:"borrowNo"`
-	Type     string `json:"type"`
-	SystemNo string `json:"systemNo"`
-}
-
 /*
 //Numbering is a function to decide applicationNo
 func (s *SmartContract) Numbering(APIstub shim.ChaincodeStubInterface) sc.Response {
-
 	//	return shim.Success(maxNumber)
 }
 */
@@ -102,8 +95,6 @@ func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, a
 
 	maxNumber.MaxApplicationNo = strconv.Itoa(tmpNumber)
 
-	var borrow = borrowData{BorrowNo: "999", Type: "borrow", SystemNo: "49"}
-
 	var exchangeApplication = exchangeApplication{
 		ApplicationNo:     maxNumber.MaxApplicationNo,
 		BorrowNo:          args[0],
@@ -126,11 +117,9 @@ func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, a
 
 	maxNumberAsBytes, _ = json.Marshal(maxNumber)
 	exchangeApplicationAsBytes, _ := json.Marshal(exchangeApplication)
-	borrowAsBytes, _ := json.Marshal(borrow)
 
 	APIstub.PutState("maxApplicationNo", maxNumberAsBytes)
 	APIstub.PutState(maxNumber.MaxApplicationNo, exchangeApplicationAsBytes)
-	APIstub.PutState(maxNumber.MaxApplicationNo, borrowAsBytes)
 
 	return shim.Success(nil)
 }
