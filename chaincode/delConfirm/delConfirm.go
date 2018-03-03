@@ -22,28 +22,26 @@ type MaxNumber struct {
 // delConfirm Chaincode implementation
 type delConfirm struct {
         ApplicationNo     string `json:"applicationNo"`
-        SystemNo          string `json:"systemNo"`
-        ProjectName       string `json:"projectName"`
-        DataQuantity      string `json:"dataQuantity"`
-        StartDate         string `json:"startDate"`
-        EndDate           string `json:"endDate"`
-        ApplicationStatus string `json:"applicationStatus"`
-        Registrant        string `json:"registrant"`
-        Rechecker         string `json:"rechecker"`
-        Reviewer          string `json:"reviewer"`
-        Authorizer        string `json:"authorizer"`
-        Detail1           string `json:"detail1"`
-        div1              string `json:"div1"`
-        delDate1          string `json:"delDate1"`
-        Detail2           string `json:"detail2"`
-        div2              string `json:"div2"`
-        delDate2          string `json:"delDate2"`
-        Detail3           string `json:"detail3"`
-        div3              string `json:"div3"`
-        delDate3          string `json:"delDate3"`
-        Detail4           string `json:"detail4"`
-        div4              string `json:"div4"`
-        delDate4          string `json:"delDate4"`
+	delConfirmNo      string `json:"delConfirmNo"`
+	Type              string `json:"type"`
+	SystemNo          string `json:"systemNo"`
+	ProjectName       string `json:"projectName"`
+	DataQuantity      string `json:"dataQuantity"`
+	ReportingDate     string `json:"reportingDate"`
+	StartDate         string `json:"startDate"`
+	EndDate           string `json:"endDate"`
+	ApplicationStatus string `json:"applicationStatus"`
+	IRRegistrant      string `json:"irRegistrant"`
+	IRRechecker       string `json:"irRechecker"`
+	IRReviewer        string `json:"irReviewer"`
+	IRAuthorizer      string `json:"irAuthorizer"`
+	BKRegistrant      string `json:"bkRregistrant"`
+	BKRechecker       string `json:"bkRechecker"`
+	BKReviewer        string `json:"bkReviewer"`
+	BKAuthorizer      string `json:"bkAuthorizer"`
+	EvidenceValue     string `json:"evidenceValue"`
+	DataNum           string `json:"DataNum"`
+	DelDate           string `json:"DelDate"`
 }
 
 /*
@@ -84,8 +82,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-        if len(args) != 22 {
-                return shim.Error("Incorrect number of arguments. Expecting 22")
+        if len(args) != 18 {
+                return shim.Error("Incorrect number of arguments. Expecting 18")
         }
 
         //get maxNumber of application
@@ -102,28 +100,28 @@ func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, a
 
         var delConfirm = delConfirm{
                 ApplicationNo:     maxNumber.MaxApplicationNo,
-                SystemNo:          args[0],
-                ProjectName:       args[1],
-                DataQuantity:      args[2],
-                StartDate:         args[3],
-                EndDate:           args[4],
-                Registrant:        args[5],
-                Rechecker:         args[6],
-                Reviewer:          args[7],
-                Authorizer:        args[8],
-                ApplicationStatus: args[9],
-				Detail1:           args[10],
-				div1:              args[11],
-                delDate1:          args[12],
-				Detail2:           args[13],
-				div2:              args[14],
-                delDate2:          args[15],
-				Detail3:           args[16],
-				div3:              args[17],
-                delDate3:          args[18],
-				Detail4:           args[19],
-				div4:              args[20],
-				delDate4:          args[21],
+
+                delConfirmNo:       args[0],
+                Type:   "delConfirm",
+                SystemNo:           args[1],
+                ProjectName:        args[2],
+                DataQuantity:       args[3],
+                ReportingDate:      args[4],
+                StartDate:          args[5],
+                EndDate:            args[6],
+                ApplicationStatus:  "30",
+                IRRegistrant:       args[7],
+                IRRechecker:        args[8],
+                IRReviewer:         args[9],
+                IRAuthorizer:       args[10],
+                BKRegistrant:       args[11],
+                BKRechecker:        args[12],
+                BKReviewer:         args[13],
+                BKAuthorizer:       args[14],
+                EvidenceValue:      args[15],
+                DataNum:            args[16],
+                DelDate:            args[17],
+		
         }
 
         maxNumberAsBytes, _ = json.Marshal(maxNumber)
