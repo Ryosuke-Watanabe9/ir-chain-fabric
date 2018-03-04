@@ -41,6 +41,61 @@ type borrowApplication struct {
 	EvidenceValue     string `json:"evidenceValue"`
 }
 
+// exchangeApplication Chaincode implementation
+type exchangeApplication struct {
+	ApplicationNo     string `json:"applicationNo"`
+	Type              string `json:"type"`
+	BorrowNo          string `json:"borrowNo"`
+	SystemNo          string `json:"systemNo"`
+	ProjectName       string `json:"projectName"`
+	DataQuantity      string `json:"dataQuantity"`
+	StartDate         string `json:"startDate"`
+	EndDate           string `json:"endDate"`
+	ApplicationStatus string `json:"applicationStatus"`
+	OSRegistrant      string `json:"osRegistrant"`
+	OSRechecker       string `json:"osRechecker"`
+	OSReviewer        string `json:"osReviewer"`
+	OSAuthorizer      string `json:"osAuthorizer"`
+	IRRegistrant      string `json:"irRregistrant"`
+	IRRechecker       string `json:"irRechecker"`
+	IRReviewer        string `json:"irReviewer"`
+	IRAuthorizer      string `json:"irAuthorizer"`
+	DataContent       string `json:"dataContent"`
+}
+
+// delConfirm Chaincode implementation
+type delConfirmApplication struct {
+	ApplicationNo     string `json:"applicationNo"`
+	Type              string `json:"type"`
+	delConfirmNo      string `json:"delConfirmNo"`
+	SystemNo          string `json:"systemNo"`
+	ProjectName       string `json:"projectName"`
+	DataQuantity      string `json:"dataQuantity"`
+	ReportingDate     string `json:"reportingDate"`
+	StartDate         string `json:"startDate"`
+	EndDate           string `json:"endDate"`
+	ApplicationStatus string `json:"applicationStatus"`
+	IRRegistrant      string `json:"irRegistrant"`
+	IRRechecker       string `json:"irRechecker"`
+	IRReviewer        string `json:"irReviewer"`
+	IRAuthorizer      string `json:"irAuthorizer"`
+	BKRegistrant      string `json:"bkRregistrant"`
+	BKRechecker       string `json:"bkRechecker"`
+	BKReviewer        string `json:"bkReviewer"`
+	BKAuthorizer      string `json:"bkAuthorizer"`
+	DataNum           string `json:"DataNum"`
+	DelDate           string `json:"DelDate"`
+}
+
+// stockManagement Chaincode implementation
+type stockManagement struct {
+	SystemNo      string `json:"systemNo"`
+	BorrowAmount  string `json:"borrowAmount"`
+	DeleteAmount  string `json:"deleteAmount"`
+	StockAmount   string `json:"stockAmount"`
+	OverDueAmount string `json:"overDueAmount"`
+}
+
 /*
 //Numbering is a function to decide applicationNo
 func (s *SmartContract) Numbering(APIstub shim.ChaincodeStubInterface) sc.Response {
@@ -79,7 +134,20 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.setApplicationRoute(APIstub, args)
 	} else if function == "queryStockManagement" {
 		return s.queryStockManagement(APIstub, args)
+	} else if function == "createExchangeApplication" {
+		return s.createExchangeApplication(APIstub, args)
+	} else if function == "changeExchangeApplicationStatus" {
+		return s.changeExchangeApplicationStatus(APIstub, args)
+	} else if function == "queryExchangeApplication" {
+		return s.queryExchangeApplication(APIstub, args)
+	} else if function == "queryDelConfirmApplication" {
+		return s.queryDelConfirmApplication(APIstub, args)
+	} else if function == "createDelConfirmApplication" {
+		return s.createDelConfirmApplication(APIstub, args)
+	} else if function == "changeDelConfirmApplicationStatus" {
+		return s.changeDelConfirmApplicationStatus(APIstub, args)
 	}
+
 	return shim.Error("Invalid Smart Contract function name.")
 }
 
@@ -180,6 +248,26 @@ func (s *SmartContract) queryApplication(APIstub shim.ChaincodeStubInterface, ar
 	return shim.Success(borrowApplicationAsBytes)
 }
 
+func (s *SmartContract) queryExchangeApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	exchangeApplicationAsBytes, _ := APIstub.GetState(args[0])
+	return shim.Success(exchangeApplicationAsBytes)
+}
+
+func (s *SmartContract) queryDelConfirmApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	delConfirmApplicationAsBytes, _ := APIstub.GetState(args[0])
+	return shim.Success(delConfirmApplicationAsBytes)
+}
+
 func (s *SmartContract) queryAllApplications(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	startKey := "0"
@@ -231,6 +319,229 @@ func (s *SmartContract) queryStockManagement(APIstub shim.ChaincodeStubInterface
 
 	stockManagementAsBytes, _ := APIstub.GetState(args[0])
 	return shim.Success(stockManagementAsBytes)
+}
+
+func (s *SmartContract) createExchangeApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	// 15args retrieved
+	if len(args) != 15 {
+		return shim.Error("Incorrect number of arguments. Expecting 15")
+	}
+
+	// get maxNumber of application
+	maxNumberAsBytes, _ := APIstub.GetState("maxApplicationNo")
+
+	maxNumber := MaxNumber{}
+	json.Unmarshal(maxNumberAsBytes, &maxNumber)
+
+	var tmpNumber int
+	tmpNumber, _ = strconv.Atoi(maxNumber.MaxApplicationNo)
+	tmpNumber = tmpNumber + 1
+
+	maxNumber.MaxApplicationNo = strconv.Itoa(tmpNumber)
+
+	// exchange data define
+	var exchangeApplication = exchangeApplication{
+		ApplicationNo:     maxNumber.MaxApplicationNo,
+		Type:              "exchange",
+		BorrowNo:          args[0],
+		SystemNo:          args[1],
+		ProjectName:       args[2],
+		DataQuantity:      args[3],
+		StartDate:         args[4],
+		EndDate:           args[5],
+		ApplicationStatus: "20",
+		OSRegistrant:      args[6],
+		OSRechecker:       args[7],
+		OSReviewer:        args[8],
+		OSAuthorizer:      args[9],
+		IRRegistrant:      args[10],
+		IRRechecker:       args[11],
+		IRReviewer:        args[12],
+		IRAuthorizer:      args[13],
+		DataContent:       args[14],
+	}
+
+	maxNumberAsBytes, _ = json.Marshal(maxNumber)
+	exchangeApplicationAsBytes, _ := json.Marshal(exchangeApplication)
+
+	APIstub.PutState("maxApplicationNo", maxNumberAsBytes)
+	APIstub.PutState(maxNumber.MaxApplicationNo, exchangeApplicationAsBytes)
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
+	}
+
+	// args[0] is applicationNo, args[1] is applicationStatus
+	changeApplicationStatusAsBytes, _ := APIstub.GetState(args[0])
+	exchangeApplication := exchangeApplication{}
+
+	json.Unmarshal(changeApplicationStatusAsBytes, &exchangeApplication)
+	exchangeApplication.ApplicationStatus = args[1]
+
+	changeApplicationStatusAsBytes, _ = json.Marshal(exchangeApplication)
+
+	// 承認ステータスを更新
+	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
+
+	// 授受票のOS承認が完了したら、有高管理する
+	if args[1] == "23" {
+
+		// 対象のSystemNoの有高管理情報を取得
+		stockManagementAsBytes, _ := APIstub.GetState("SystemNo:" + args[2])
+
+		if stockManagementAsBytes == nil {
+			// 有高管理を初めて行うシステムの場合
+			var stockManagement = stockManagement{
+				SystemNo:      args[2],
+				BorrowAmount:  args[3],
+				DeleteAmount:  "0",
+				StockAmount:   args[3],
+				OverDueAmount: "0",
+			}
+			// 有高管理対象のシステムを追加
+			stockManagementAsBytes, _ := json.Marshal(stockManagement)
+			APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
+		} else {
+			// 既に有高管理をしているシステムがある場合
+			stockManagement := stockManagement{}
+			json.Unmarshal(stockManagementAsBytes, &stockManagement)
+
+			// 現在のBorrowAmountに借用データ数をプラスする
+			var borrowAmountInt int
+			var borrowInt int
+			borrowAmountInt, _ = strconv.Atoi(stockManagement.BorrowAmount)
+			borrowInt, _ = strconv.Atoi(args[3])
+			borrowAmountInt = borrowAmountInt + borrowInt
+			stockManagement.BorrowAmount = strconv.Itoa(borrowAmountInt)
+
+			// 現在のStockAmountに授受分をプラスする
+			var stockAmountInt int
+			stockAmountInt, _ = strconv.Atoi(stockManagement.StockAmount)
+			stockAmountInt = stockAmountInt + borrowInt
+			stockManagement.StockAmount = strconv.Itoa(stockAmountInt)
+
+			// 有高情報を更新
+			stockManagementAsBytes, _ := json.Marshal(stockManagement)
+			APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
+		}
+	}
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) createDelConfirmApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 17 {
+		return shim.Error("Incorrect number of arguments. Expecting 17")
+	}
+
+	//get maxNumber of application
+	maxNumberAsBytes, _ := APIstub.GetState("maxApplicationNo")
+
+	maxNumber := MaxNumber{}
+	json.Unmarshal(maxNumberAsBytes, &maxNumber)
+
+	var tmpNumber int
+	tmpNumber, _ = strconv.Atoi(maxNumber.MaxApplicationNo)
+	tmpNumber = tmpNumber + 1
+
+	maxNumber.MaxApplicationNo = strconv.Itoa(tmpNumber)
+
+	var delConfirmApplication = delConfirmApplication{
+		ApplicationNo:     maxNumber.MaxApplicationNo,
+		delConfirmNo:      args[0],
+		Type:              "delConfirm",
+		SystemNo:          args[1],
+		ProjectName:       args[2],
+		DataQuantity:      args[3],
+		ReportingDate:     args[4],
+		StartDate:         args[5],
+		EndDate:           args[6],
+		ApplicationStatus: "30",
+		IRRegistrant:      args[7],
+		IRRechecker:       args[8],
+		IRReviewer:        args[9],
+		IRAuthorizer:      args[10],
+		BKRegistrant:      args[11],
+		BKRechecker:       args[12],
+		BKReviewer:        args[13],
+		BKAuthorizer:      args[14],
+		DataNum:           args[15],
+		DelDate:           args[16],
+	}
+
+	maxNumberAsBytes, _ = json.Marshal(maxNumber)
+	delConfirmApplicationAsBytes, _ := json.Marshal(delConfirmApplication)
+
+	APIstub.PutState("maxApplicationNo", maxNumberAsBytes)
+	APIstub.PutState(maxNumber.MaxApplicationNo, delConfirmApplicationAsBytes)
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) changeDelConfirmApplicationStatus(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
+	}
+
+	// args[0] is applicationNo, args[1] is applicationStatus
+	changeApplicationStatusAsBytes, _ := APIstub.GetState(args[0])
+	delConfirmApplication := delConfirmApplication{}
+
+	json.Unmarshal(changeApplicationStatusAsBytes, &delConfirmApplication)
+	delConfirmApplication.ApplicationStatus = args[1]
+
+	changeApplicationStatusAsBytes, _ = json.Marshal(delConfirmApplication)
+
+	// update application status
+	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
+
+	// applicationStatusが13(BK承認完了)となった場合、
+	// stockManagementを変更
+	if args[1] == "13" {
+
+		// args[2] is systemNo
+		stockManagementAsBytes, _ := APIstub.GetState(args[2])
+		stockManagement := stockManagement{}
+
+		json.Unmarshal(stockManagementAsBytes, &stockManagement)
+
+		// DeleteAmountの加算
+		// args[3] is deleteAmount
+		var tmpDeleteAmount int
+		var tmpAddDeleteAmount int
+		tmpDeleteAmount, _ = strconv.Atoi(stockManagement.DeleteAmount)
+		tmpAddDeleteAmount, _ = strconv.Atoi(args[3])
+		tmpDeleteAmount = tmpDeleteAmount + tmpAddDeleteAmount
+
+		stockManagement.DeleteAmount = strconv.Itoa(tmpDeleteAmount)
+
+		// StockAmountの算出
+		var tmpBorrowAmount int
+		var tmpStockAmount int
+		tmpBorrowAmount, _ = strconv.Atoi(stockManagement.StockAmount)
+		tmpStockAmount = tmpBorrowAmount - tmpDeleteAmount
+
+		stockManagement.StockAmount = strconv.Itoa(tmpStockAmount)
+
+		stockManagementAsBytes, _ = json.Marshal(stockManagement)
+
+		// update application status
+		APIstub.PutState(args[0], stockManagementAsBytes)
+	}
+
+	// if exchangeApplication is completed, stockManagement write
+	//if APIstub.GetState("SystemNo:"+args[2]) != NULL {
+	//	APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
+	//}
+
+	return shim.Success(nil)
 }
 
 // The main function is only relevant in unit test mode. Only included here for completeness.
