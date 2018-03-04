@@ -165,7 +165,7 @@ func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeSt
 			BorrowAmount:  args[3],
 			DeleteAmount:  "0",
 			StockAmount:   args[3],
-			OverDueAmount: "0"
+			OverDueAmount: "0",
 		}
 		// 有高管理対象のシステムを追加
 		stockManagementAsBytes, _ := json.Marshal(stockManagement)
