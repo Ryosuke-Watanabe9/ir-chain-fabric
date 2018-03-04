@@ -1,13 +1,13 @@
 package main
 
 import (
-        "bytes"
-        "encoding/json"
-        "fmt"
-        "strconv"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"strconv"
 
-        "github.com/hyperledger/fabric/core/chaincode/shim"
-        sc "github.com/hyperledger/fabric/protos/peer"
+	"github.com/hyperledger/fabric/core/chaincode/shim"
+	sc "github.com/hyperledger/fabric/protos/peer"
 )
 
 // SmartContract structure
@@ -16,14 +16,14 @@ type SmartContract struct {
 
 // MaxNumber structure
 type MaxNumber struct {
-        MaxApplicationNo string `json:"maxApplicationNo"`
+	MaxApplicationNo string `json:"maxApplicationNo"`
 }
 
 // delConfirm Chaincode implementation
 type delConfirmApplication struct {
-        ApplicationNo     string `json:"applicationNo"`
-        Type              string `json:"type"`
-        delConfirmNo      string `json:"delConfirmNo"`
+	ApplicationNo     string `json:"applicationNo"`
+	Type              string `json:"type"`
+	delConfirmNo      string `json:"delConfirmNo"`
 	SystemNo          string `json:"systemNo"`
 	ProjectName       string `json:"projectName"`
 	DataQuantity      string `json:"dataQuantity"`
@@ -62,85 +62,84 @@ func (s *SmartContract) Numbering(APIstub shim.ChaincodeStubInterface) sc.Respon
 //Init method is called as a result of deployment "delConfirm"
 func (s *SmartContract) Init(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-        var maxNumber = MaxNumber{
-                MaxApplicationNo: "0",
-        }
-        maxNumberAsBytes, _ := json.Marshal(maxNumber)
-        APIstub.PutState("maxApplicationNo", maxNumberAsBytes)
+	var maxNumber = MaxNumber{
+		MaxApplicationNo: "0",
+	}
+	maxNumberAsBytes, _ := json.Marshal(maxNumber)
+	APIstub.PutState("maxApplicationNo", maxNumberAsBytes)
 
-        return shim.Success(nil)
+	return shim.Success(nil)
 }
 
 //Invoke method is called as a result of an application request to run the Smart Contract "delConfirm"
 func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-        // Retrieve the requested Smart Contract function and arguments
-        function, args := APIstub.GetFunctionAndParameters()
-        // Route to the appropriate handler function to interact with the ledger
-        if function == "createDelConfirmApplication" {
-                return s.createDelConfirmApplication(APIstub, args)
-        } else if function == "queryDelConfirmApplication" {
-                return s.queryDelConfirmApplication(APIstub, args)
-        } else if function == "queryAllDelConfirmApplications" {
-                return s.queryAllDelConfirmApplications(APIstub)
-        } else if function == "changeDelConfirmApplicationStatus" {
-                return s.changeDelConfirmApplicationStatus(APIstub, args)    
-        } else if function == "createStockManagement" {
-                return s.createStockManagement(APIstub, args)    
-        }
-        
-        return shim.Error("Invalid Smart Contract function name.")
+	// Retrieve the requested Smart Contract function and arguments
+	function, args := APIstub.GetFunctionAndParameters()
+	// Route to the appropriate handler function to interact with the ledger
+	if function == "createDelConfirmApplication" {
+		return s.createDelConfirmApplication(APIstub, args)
+	} else if function == "queryDelConfirmApplication" {
+		return s.queryDelConfirmApplication(APIstub, args)
+	} else if function == "queryAllDelConfirmApplications" {
+		return s.queryAllDelConfirmApplications(APIstub)
+	} else if function == "changeDelConfirmApplicationStatus" {
+		return s.changeDelConfirmApplicationStatus(APIstub, args)
+	} else if function == "createStockManagement" {
+		return s.createStockManagement(APIstub, args)
+	}
+
+	return shim.Error("Invalid Smart Contract function name.")
 }
 
 func (s *SmartContract) createDelConfirmApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-        if len(args) != 17 {
-                return shim.Error("Incorrect number of arguments. Expecting 17")
-        }
+	if len(args) != 17 {
+		return shim.Error("Incorrect number of arguments. Expecting 17")
+	}
 
-        //get maxNumber of application
-        maxNumberAsBytes, _ := APIstub.GetState("maxApplicationNo")
+	//get maxNumber of application
+	maxNumberAsBytes, _ := APIstub.GetState("maxApplicationNo")
 
-        maxNumber := MaxNumber{}
-        json.Unmarshal(maxNumberAsBytes, &maxNumber)
+	maxNumber := MaxNumber{}
+	json.Unmarshal(maxNumberAsBytes, &maxNumber)
 
-        var tmpNumber int
-        tmpNumber, _ = strconv.Atoi(maxNumber.MaxApplicationNo)
-        tmpNumber = tmpNumber + 1
+	var tmpNumber int
+	tmpNumber, _ = strconv.Atoi(maxNumber.MaxApplicationNo)
+	tmpNumber = tmpNumber + 1
 
-        maxNumber.MaxApplicationNo = strconv.Itoa(tmpNumber)
+	maxNumber.MaxApplicationNo = strconv.Itoa(tmpNumber)
 
-        var delConfirmApplication = delConfirmApplication{
-                ApplicationNo:     maxNumber.MaxApplicationNo,
-                delConfirmNo:       args[0],
-                Type:   "delConfirm",
-                SystemNo:           args[1],
-                ProjectName:        args[2],
-                DataQuantity:       args[3],
-                ReportingDate:      args[4],
-                StartDate:          args[5],
-                EndDate:            args[6],
-                ApplicationStatus:  "30",
-                IRRegistrant:       args[7],
-                IRRechecker:        args[8],
-                IRReviewer:         args[9],
-                IRAuthorizer:       args[10],
-                BKRegistrant:       args[11],
-                BKRechecker:        args[12],
-                BKReviewer:         args[13],
-                BKAuthorizer:       args[14],
-                DataNum:            args[15],
-                DelDate:            args[16],
-		
-        }
+	var delConfirmApplication = delConfirmApplication{
+		ApplicationNo:     maxNumber.MaxApplicationNo,
+		delConfirmNo:      args[0],
+		Type:              "delConfirm",
+		SystemNo:          args[1],
+		ProjectName:       args[2],
+		DataQuantity:      args[3],
+		ReportingDate:     args[4],
+		StartDate:         args[5],
+		EndDate:           args[6],
+		ApplicationStatus: "30",
+		IRRegistrant:      args[7],
+		IRRechecker:       args[8],
+		IRReviewer:        args[9],
+		IRAuthorizer:      args[10],
+		BKRegistrant:      args[11],
+		BKRechecker:       args[12],
+		BKReviewer:        args[13],
+		BKAuthorizer:      args[14],
+		DataNum:           args[15],
+		DelDate:           args[16],
+	}
 
-        maxNumberAsBytes, _ = json.Marshal(maxNumber)
-        delConfirmApplicationAsBytes, _ := json.Marshal(delConfirmApplication)
+	maxNumberAsBytes, _ = json.Marshal(maxNumber)
+	delConfirmApplicationAsBytes, _ := json.Marshal(delConfirmApplication)
 
-        APIstub.PutState("maxApplicationNo", maxNumberAsBytes)
-        APIstub.PutState(maxNumber.MaxApplicationNo, delConfirmApplicationAsBytes)
+	APIstub.PutState("maxApplicationNo", maxNumberAsBytes)
+	APIstub.PutState(maxNumber.MaxApplicationNo, delConfirmApplicationAsBytes)
 
-        return shim.Success(nil)
+	return shim.Success(nil)
 }
 
 func (s *SmartContract) changeDelConfirmApplicationStatus(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -161,39 +160,39 @@ func (s *SmartContract) changeDelConfirmApplicationStatus(APIstub shim.Chaincode
 	// update application status
 	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
 
-        // applicationStatusが13(BK承認完了)となった場合、
-        // stockManagementを変更
-        if args[1] =="13" {
+	// applicationStatusが13(BK承認完了)となった場合、
+	// stockManagementを変更
+	if args[1] == "13" {
 
-                // args[2] is systemNo
-                stockManagementAsBytes, _ := APIstub.GetState(args[2])
-                stockManagement := stockManagement{}
+		// args[2] is systemNo
+		stockManagementAsBytes, _ := APIstub.GetState(args[2])
+		stockManagement := stockManagement{}
 
-                json.Unmarshal(stockManagementAsBytes, &stockManagement)
-        
-                // DeleteAmountの加算
-                // args[3] is deleteAmount
-                var tmpDeleteAmount int
-                var tmpAddDeleteAmount int
-                tmpDeleteAmount, _ = strconv.Atoi(stockManagement.DeleteAmount)
-                tmpAddDeleteAmount, _ = strconv.Atoi(args[3])
-                tmpDeleteAmount = tmpDeleteAmount + tmpAddDeleteAmount
-                
-                stockManagement.DeleteAmount = strconv.Itoa(tmpDeleteAmount)
-        
-                // StockAmountの算出
-                var tmpBorrowAmount int
-                var tmpStockAmount int
-                tmpBorrowAmount, _ = strconv.Atoi(stockManagement.StockAmount)
-                tmpStockAmount = tmpBorrowAmount - tmpDeleteAmount
-                
-                stockManagement.StockAmount = strconv.Itoa(tmpStockAmount)
-                
-                stockManagementAsBytes, _ = json.Marshal(stockManagement)
-                
-                // update application status
-                APIstub.PutState(args[0], stockManagementAsBytes)
-        }
+		json.Unmarshal(stockManagementAsBytes, &stockManagement)
+
+		// DeleteAmountの加算
+		// args[3] is deleteAmount
+		var tmpDeleteAmount int
+		var tmpAddDeleteAmount int
+		tmpDeleteAmount, _ = strconv.Atoi(stockManagement.DeleteAmount)
+		tmpAddDeleteAmount, _ = strconv.Atoi(args[3])
+		tmpDeleteAmount = tmpDeleteAmount + tmpAddDeleteAmount
+
+		stockManagement.DeleteAmount = strconv.Itoa(tmpDeleteAmount)
+
+		// StockAmountの算出
+		var tmpBorrowAmount int
+		var tmpStockAmount int
+		tmpBorrowAmount, _ = strconv.Atoi(stockManagement.StockAmount)
+		tmpStockAmount = tmpBorrowAmount - tmpDeleteAmount
+
+		stockManagement.StockAmount = strconv.Itoa(tmpStockAmount)
+
+		stockManagementAsBytes, _ = json.Marshal(stockManagement)
+
+		// update application status
+		APIstub.PutState(args[0], stockManagementAsBytes)
+	}
 
 	// if exchangeApplication is completed, stockManagement write
 	//if APIstub.GetState("SystemNo:"+args[2]) != NULL {
@@ -203,57 +202,57 @@ func (s *SmartContract) changeDelConfirmApplicationStatus(APIstub shim.Chaincode
 	return shim.Success(nil)
 }
 
-func (s *SmartContract) querydelConfirmApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+func (s *SmartContract) queryDelConfirmApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-        if len(args) != 1 {
-                return shim.Error("Incorrect number of arguments. Expecting 1")
-        }
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
 
-        delConfirmApplicationAsBytes, _ := APIstub.GetState(args[0])
-        return shim.Success(delConfirmApplicationAsBytes)
+	delConfirmApplicationAsBytes, _ := APIstub.GetState(args[0])
+	return shim.Success(delConfirmApplicationAsBytes)
 }
 
 func (s *SmartContract) queryAllDelConfirmApplications(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-        startKey := "0"
-        endKey := "999"
+	startKey := "0"
+	endKey := "999"
 
-        resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
-        if err != nil {
-                return shim.Error(err.Error())
-        }
-        defer resultsIterator.Close()
+	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	defer resultsIterator.Close()
 
-        // buffer is a JSON array containing QueryResults
-        var buffer bytes.Buffer
-        buffer.WriteString("[")
+	// buffer is a JSON array containing QueryResults
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
 
-        bArrayMemberAlreadyWritten := false
-        for resultsIterator.HasNext() {
-                queryResponse, err := resultsIterator.Next()
-                if err != nil {
-                        return shim.Error(err.Error())
-                }
-                // Add a comma before array members, suppress it for the first array member
-                if bArrayMemberAlreadyWritten == true {
-                        buffer.WriteString(",")
-                }
-                buffer.WriteString("{\"Key\":")
-                buffer.WriteString("\"")
-                buffer.WriteString(queryResponse.Key)
-                buffer.WriteString("\"")
+	bArrayMemberAlreadyWritten := false
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		// Add a comma before array members, suppress it for the first array member
+		if bArrayMemberAlreadyWritten == true {
+			buffer.WriteString(",")
+		}
+		buffer.WriteString("{\"Key\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(queryResponse.Key)
+		buffer.WriteString("\"")
 
-                buffer.WriteString(", \"Record\":")
-                // Record is a JSON object, so we write as-is
-                buffer.WriteString(string(queryResponse.Value))
-                buffer.WriteString("}")
-                bArrayMemberAlreadyWritten = true
-        }
-        buffer.WriteString("]")
+		buffer.WriteString(", \"Record\":")
+		// Record is a JSON object, so we write as-is
+		buffer.WriteString(string(queryResponse.Value))
+		buffer.WriteString("}")
+		bArrayMemberAlreadyWritten = true
+	}
+	buffer.WriteString("]")
 
-        fmt.Printf("- queryAllDelConfirmApplications:\n%s\n", buffer.String())
+	fmt.Printf("- queryAllDelConfirmApplications:\n%s\n", buffer.String())
 
-        return shim.Success(buffer.Bytes())
+	return shim.Success(buffer.Bytes())
 }
 
 func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -263,9 +262,9 @@ func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterfac
 	}
 
 	// 授受票のOS承認が完了したら、有高管理する
-        stockManagementAsBytes, err := APIstub.GetState("SystemNo:" + args[0])
-        
-        if stockManagementAsBytes == nil {
+	stockManagementAsBytes, err := APIstub.GetState("SystemNo:" + args[0])
+
+	if stockManagementAsBytes == nil {
 		// 有高管理を初めて行うシステムの場合
 		var stockManagement = stockManagement{
 			SystemNo:      args[1],
@@ -277,17 +276,15 @@ func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterfac
 		// 有高管理対象のシステムを追加
 		stockManagementAsBytes, _ := json.Marshal(stockManagement)
 		APIstub.PutState("SystemNo:"+args[0], stockManagementAsBytes)
-	｝
+	}
 	return shim.Success(nil)
 }
 
-
-
 // The main function is only relevant in unit test mode. Only included here for completeness.
 func main() {
-        // Create a new Smart Contract
-        err := shim.Start(new(SmartContract))
-        if err != nil {
-                fmt.Printf("Error creating new Smart Contract: %s", err)
-        }
+	// Create a new Smart Contract
+	err := shim.Start(new(SmartContract))
+	if err != nil {
+		fmt.Printf("Error creating new Smart Contract: %s", err)
+	}
 }
