@@ -22,11 +22,14 @@ type MaxNumber struct {
 // exchangeApplication Chaincode implementation
 type exchangeApplication struct {
 	ApplicationNo     string `json:"applicationNo"`
+	Type              string `json:"type"`
 	BorrowNo          string `json:"borrowNo"`
+	SystemNo          string `json:"systemNo"`
 	ProjectName       string `json:"projectName"`
 	DataQuantity      string `json:"dataQuantity"`
 	StartDate         string `json:"startDate"`
 	EndDate           string `json:"endDate"`
+	ApplicationStatus string `json:"applicationStatus"`
 	OSRegistrant      string `json:"osRegistrant"`
 	OSRechecker       string `json:"osRechecker"`
 	OSReviewer        string `json:"osReviewer"`
@@ -36,8 +39,6 @@ type exchangeApplication struct {
 	IRReviewer        string `json:"irReviewer"`
 	IRAuthorizer      string `json:"irAuthorizer"`
 	DataContent       string `json:"dataContent"`
-	ApplicationStatus string `json:"applicationStatus"`
-	ApplicationType   string `json:"applicationType"`
 }
 
 // stockManagement Chaincode implementation
@@ -74,25 +75,26 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 	// Retrieve the requested Smart Contract function and arguments
 	function, args := APIstub.GetFunctionAndParameters()
 	// Route to the appropriate handler function to interact with the ledger
-	if function == "createApplication" {
-		return s.createApplication(APIstub, args)
+	if function == "createExchangeApplication" {
+		return s.createExchangeApplication(APIstub, args)
 	} else if function == "queryApplication" {
 		return s.queryApplication(APIstub, args)
 	} else if function == "queryAllApplications" {
 		return s.queryAllApplications(APIstub)
-	} else if function == "changeApplicationStatus" {
-		return s.changeApplicationStatus(APIstub, args)
+	} else if function == "changeExchangeApplicationStatus" {
+		return s.changeExchangeApplicationStatus(APIstub, args)
 	}
 	return shim.Error("Invalid Smart Contract function name.")
 }
 
-func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+func (s *SmartContract) createExchangeApplication(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 14 {
-		return shim.Error("Incorrect number of arguments. Expecting 14")
+	// 15args retrieved
+	if len(args) != 15 {
+		return shim.Error("Incorrect number of arguments. Expecting 15")
 	}
 
-	//get maxNumber of application
+	// get maxNumber of application
 	maxNumberAsBytes, _ := APIstub.GetState("maxApplicationNo")
 
 	maxNumber := MaxNumber{}
@@ -104,24 +106,26 @@ func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, a
 
 	maxNumber.MaxApplicationNo = strconv.Itoa(tmpNumber)
 
+	// exchange data define
 	var exchangeApplication = exchangeApplication{
 		ApplicationNo:     maxNumber.MaxApplicationNo,
+		Type:              "exchange",
 		BorrowNo:          args[0],
-		ProjectName:       args[1],
-		DataQuantity:      args[2],
-		StartDate:         args[3],
-		EndDate:           args[4],
-		OSRegistrant:      args[5],
-		OSRechecker:       args[6],
-		OSReviewer:        args[7],
-		OSAuthorizer:      args[8],
-		IRRegistrant:      args[9],
-		IRRechecker:       args[10],
-		IRReviewer:        args[11],
-		IRAuthorizer:      args[12],
-		DataContent:       args[13],
+		SystemNo:          args[1],
+		ProjectName:       args[2],
+		DataQuantity:      args[3],
+		StartDate:         args[4],
+		EndDate:           args[5],
 		ApplicationStatus: "20",
-		ApplicationType:   "exchange",
+		OSRegistrant:      args[6],
+		OSRechecker:       args[7],
+		OSReviewer:        args[8],
+		OSAuthorizer:      args[9],
+		IRRegistrant:      args[10],
+		IRRechecker:       args[11],
+		IRReviewer:        args[12],
+		IRAuthorizer:      args[13],
+		DataContent:       args[14],
 	}
 
 	maxNumberAsBytes, _ = json.Marshal(maxNumber)
@@ -133,12 +137,13 @@ func (s *SmartContract) createApplication(APIstub shim.ChaincodeStubInterface, a
 	return shim.Success(nil)
 }
 
-func (s *SmartContract) changeApplicationStatus(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2")
+	if len(args) != 7 {
+		return shim.Error("Incorrect number of arguments. Expecting 7")
 	}
 
+	// args[0] is applicationNo, args[1] is applicationStatus
 	changeApplicationStatusAsBytes, _ := APIstub.GetState(args[0])
 	exchangeApplication := exchangeApplication{}
 
@@ -146,7 +151,25 @@ func (s *SmartContract) changeApplicationStatus(APIstub shim.ChaincodeStubInterf
 	exchangeApplication.ApplicationStatus = args[1]
 
 	changeApplicationStatusAsBytes, _ = json.Marshal(exchangeApplication)
+
+	// update application status
 	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
+
+	// stockManagement data define
+	var stockManagement = stockManagement{
+		SystemNo:      args[2],
+		BorrowAmount:  args[3],
+		DeleteAmount:  args[4],
+		StockAmount:   args[5],
+		OverDueAmount: args[6],
+	}
+
+	stockManagementAsBytes, _ := json.Marshal(stockManagement)
+
+	// if exchangeApplication is completed, stockManagement write
+	if APIstub.GetState("SystemNo:"+args[2]) != NULL {
+		APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
+	}
 
 	return shim.Success(nil)
 }
