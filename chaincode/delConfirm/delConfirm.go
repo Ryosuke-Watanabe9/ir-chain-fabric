@@ -174,8 +174,10 @@ func (s *SmartContract) changeDelConfirmApplicationStatus(APIstub shim.Chaincode
                 // DeleteAmountの加算
                 // args[3] is deleteAmount
                 var tmpDeleteAmount int
+                var tmpAddDeleteAmount int
                 tmpDeleteAmount, _ = strconv.Atoi(stockManagement.DeleteAmount)
-                tmpDeleteAmount = tmpDeleteAmount + strconv.Atoi(args[3])
+                tmpAddDeleteAmount, _ = strconv.Atoi(args[3])
+                tmpDeleteAmount = tmpDeleteAmount + tmpAddDeleteAmount
                 
                 stockManagement.DeleteAmount = strconv.Itoa(tmpDeleteAmount)
         
@@ -261,8 +263,9 @@ func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterfac
 	}
 
 	// 授受票のOS承認が完了したら、有高管理する
-	stockManagementAsBytes, err := APIstub.GetState("SystemNo:" + args[0])
-
+        stockManagementAsBytes, err := APIstub.GetState("SystemNo:" + args[0])
+        
+        if stockManagementAsBytes == nil {
 		// 有高管理を初めて行うシステムの場合
 		var stockManagement = stockManagement{
 			SystemNo:      args[1],
@@ -274,7 +277,7 @@ func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterfac
 		// 有高管理対象のシステムを追加
 		stockManagementAsBytes, _ := json.Marshal(stockManagement)
 		APIstub.PutState("SystemNo:"+args[0], stockManagementAsBytes)
-	
+	｝
 	return shim.Success(nil)
 }
 
