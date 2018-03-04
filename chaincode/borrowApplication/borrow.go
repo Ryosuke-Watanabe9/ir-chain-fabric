@@ -393,7 +393,7 @@ func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeSt
 	if args[1] == "23" {
 
 		// 対象のSystemNoの有高管理情報を取得
-		stockManagementAsBytes, _ := APIstub.GetState("SystemNo:" + args[2])
+		stockManagementAsBytes, _ := APIstub.GetState(args[2])
 
 		if stockManagementAsBytes == nil {
 			// 有高管理を初めて行うシステムの場合
@@ -406,7 +406,7 @@ func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeSt
 			}
 			// 有高管理対象のシステムを追加
 			stockManagementAsBytes, _ := json.Marshal(stockManagement)
-			APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
+			APIstub.PutState(args[2], stockManagementAsBytes)
 		} else {
 			// 既に有高管理をしているシステムがある場合
 			stockManagement := stockManagement{}
@@ -428,7 +428,7 @@ func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeSt
 
 			// 有高情報を更新
 			stockManagementAsBytes, _ := json.Marshal(stockManagement)
-			APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
+			APIstub.PutState(args[2], stockManagementAsBytes)
 		}
 	}
 	return shim.Success(nil)
