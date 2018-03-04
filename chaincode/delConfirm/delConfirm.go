@@ -255,6 +255,7 @@ func (s *SmartContract) queryAllDelConfirmApplications(APIstub shim.ChaincodeStu
 	return shim.Success(buffer.Bytes())
 }
 
+/*
 func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 4 {
