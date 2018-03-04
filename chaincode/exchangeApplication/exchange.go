@@ -139,8 +139,8 @@ func (s *SmartContract) createExchangeApplication(APIstub shim.ChaincodeStubInte
 
 func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 7 {
-		return shim.Error("Incorrect number of arguments. Expecting 7")
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
 	}
 
 	// args[0] is applicationNo, args[1] is applicationStatus
@@ -156,42 +156,46 @@ func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeSt
 	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
 
 	// 授受票のOS承認が完了したら、有高管理する
-	stockManagementAsBytes, _ := APIstub.GetState("SystemNo:" + args[2])
+	if args[1] == "23" {
 
-	if stockManagementAsBytes == nil {
-		// 有高管理を初めて行うシステムの場合
-		var stockManagement = stockManagement{
-			SystemNo:      args[2],
-			BorrowAmount:  args[3],
-			DeleteAmount:  "0",
-			StockAmount:   args[3],
-			OverDueAmount: "0",
+		// 対象のSystemNoの有高管理情報を取得
+		stockManagementAsBytes, _ := APIstub.GetState("SystemNo:" + args[2])
+
+		if stockManagementAsBytes == nil {
+			// 有高管理を初めて行うシステムの場合
+			var stockManagement = stockManagement{
+				SystemNo:      args[2],
+				BorrowAmount:  args[3],
+				DeleteAmount:  "0",
+				StockAmount:   args[3],
+				OverDueAmount: "0",
+			}
+			// 有高管理対象のシステムを追加
+			stockManagementAsBytes, _ := json.Marshal(stockManagement)
+			APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
+		} else {
+			// 既に有高管理をしているシステムがある場合
+			stockManagement := stockManagement{}
+			json.Unmarshal(stockManagementAsBytes, &stockManagement)
+
+			// 現在のBorrowAmountに借用データ数をプラスする
+			var borrowAmountInt int
+			var borrowInt int
+			borrowAmountInt, _ = strconv.Atoi(stockManagement.BorrowAmount)
+			borrowInt, _ = strconv.Atoi(args[3])
+			borrowAmountInt = borrowAmountInt + borrowInt
+			stockManagement.BorrowAmount = strconv.Itoa(borrowAmountInt)
+
+			// 現在のStockAmountに授受分をプラスする
+			var stockAmountInt int
+			stockAmountInt, _ = strconv.Atoi(stockManagement.StockAmount)
+			stockAmountInt = stockAmountInt + borrowInt
+			stockManagement.StockAmount = strconv.Itoa(stockAmountInt)
+
+			// 有高情報を更新
+			stockManagementAsBytes, _ := json.Marshal(stockManagement)
+			APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
 		}
-		// 有高管理対象のシステムを追加
-		stockManagementAsBytes, _ := json.Marshal(stockManagement)
-		APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
-	} else {
-		// 既に有高管理をしているシステムがある場合
-		stockManagement := stockManagement{}
-		json.Unmarshal(stockManagementAsBytes, &stockManagement)
-
-		// 現在のBorrowAmountに借用データ数をプラスする
-		var borrowAmountInt int
-		var borrowInt int
-		borrowAmountInt, _ = strconv.Atoi(stockManagement.BorrowAmount)
-		borrowInt, _ = strconv.Atoi(args[3])
-		borrowAmountInt = borrowAmountInt + borrowInt
-		stockManagement.BorrowAmount = strconv.Itoa(borrowAmountInt)
-
-		// 現在のStockAmountに授受分をプラスする
-		var stockAmountInt int
-		stockAmountInt, _ = strconv.Atoi(stockManagement.StockAmount)
-		stockAmountInt = stockAmountInt + borrowInt
-		stockManagement.StockAmount = strconv.Itoa(stockAmountInt)
-
-		// 有高情報を更新
-		stockManagementAsBytes, _ := json.Marshal(stockManagement)
-		APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
 	}
 	return shim.Success(nil)
 }

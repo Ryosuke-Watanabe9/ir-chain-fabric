@@ -77,6 +77,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.changeApplicationStatus(APIstub, args)
 	} else if function == "setApplicationRoute" {
 		return s.setApplicationRoute(APIstub, args)
+	} else if function == "queryStockManagement" {
+		return s.queryStockManagement(APIstub, args)
 	}
 	return shim.Error("Invalid Smart Contract function name.")
 }
