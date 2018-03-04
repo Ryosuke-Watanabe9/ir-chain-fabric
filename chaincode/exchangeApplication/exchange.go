@@ -156,7 +156,7 @@ func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeSt
 	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
 
 	// 授受票のOS承認が完了したら、有高管理する
-	stockManagementAsBytes, err := APIstub.GetState("SystemNo:" + args[2])
+	stockManagementAsBytes, _ := APIstub.GetState("SystemNo:" + args[2])
 
 	if stockManagementAsBytes == nil {
 		// 有高管理を初めて行うシステムの場合
