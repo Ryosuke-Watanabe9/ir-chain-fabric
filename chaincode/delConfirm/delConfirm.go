@@ -256,6 +256,7 @@ func (s *SmartContract) queryAllDelConfirmApplications(APIstub shim.ChaincodeStu
         return shim.Success(buffer.Bytes())
 }
 
+/*
 func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 4 {
@@ -280,7 +281,7 @@ func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterfac
 	｝
 	return shim.Success(nil)
 }
-
+*/
 
 
 // The main function is only relevant in unit test mode. Only included here for completeness.
