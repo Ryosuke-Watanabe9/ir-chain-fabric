@@ -85,7 +85,10 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
                 return s.queryAllDelConfirmApplications(APIstub)
         } else if function == "changeDelConfirmApplicationStatus" {
                 return s.changeDelConfirmApplicationStatus(APIstub, args)    
+        } else if function == "createStockManagement" {
+                return s.createStockManagement(APIstub, args)    
         }
+        
         return shim.Error("Invalid Smart Contract function name.")
 }
 
@@ -250,6 +253,32 @@ func (s *SmartContract) queryAllDelConfirmApplications(APIstub shim.ChaincodeStu
 
         return shim.Success(buffer.Bytes())
 }
+
+func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
+	}
+
+	// 授受票のOS承認が完了したら、有高管理する
+	stockManagementAsBytes, err := APIstub.GetState("SystemNo:" + args[0])
+
+		// 有高管理を初めて行うシステムの場合
+		var stockManagement = stockManagement{
+			SystemNo:      args[1],
+			BorrowAmount:  args[2],
+			DeleteAmount:  "0",
+			StockAmount:   args[3],
+			OverDueAmount: "0",
+		}
+		// 有高管理対象のシステムを追加
+		stockManagementAsBytes, _ := json.Marshal(stockManagement)
+		APIstub.PutState("SystemNo:"+args[0], stockManagementAsBytes)
+	
+	return shim.Success(nil)
+}
+
+
 
 // The main function is only relevant in unit test mode. Only included here for completeness.
 func main() {
