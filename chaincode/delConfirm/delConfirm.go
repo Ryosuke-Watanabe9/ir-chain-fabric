@@ -262,7 +262,7 @@ func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterfac
 	}
 
 	// 授受票のOS承認が完了したら、有高管理する
-	stockManagementAsBytes, err := APIstub.GetState("SystemNo:" + args[0])
+	stockManagementAsBytes, _ := APIstub.GetState("SystemNo:" + args[0])
 
 	if stockManagementAsBytes == nil {
 		// 有高管理を初めて行うシステムの場合
