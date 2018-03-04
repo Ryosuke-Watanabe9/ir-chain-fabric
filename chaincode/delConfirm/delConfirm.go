@@ -255,7 +255,6 @@ func (s *SmartContract) queryAllDelConfirmApplications(APIstub shim.ChaincodeStu
 	return shim.Success(buffer.Bytes())
 }
 
-/*
 func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 4 {
@@ -276,8 +275,8 @@ func (s *SmartContract) createStockManagement(APIstub shim.ChaincodeStubInterfac
 		}
 		// 有高管理対象のシステムを追加
 		stockManagementAsBytes, _ := json.Marshal(stockManagement)
-		APIstub.PutState("SystemNo:"+args[0], stockManagementAsBytes)
-	}
+                APIstub.PutState("SystemNo:"+args[0], stockManagementAsBytes)                
+        }
 	return shim.Success(nil)
 }
 
