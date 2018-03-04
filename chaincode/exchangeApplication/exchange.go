@@ -180,7 +180,7 @@ func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeSt
 		var borrowInt int
 		borrowAmountInt, _ = strconv.Atoi(stockManagement.BorrowAmount)
 		borrowInt, _ = strconv.Atoi(args[3])
-		BrrowAmountInt = borrowAmountInt + borrowInt
+		borrowAmountInt = borrowAmountInt + borrowInt
 		stockManagement.BorrowAmount = strconv.Itoa(borrowAmountInt)
 
 		// 現在のStockAmountに授受分をプラスする
