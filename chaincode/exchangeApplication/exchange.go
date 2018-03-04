@@ -40,6 +40,15 @@ type exchangeApplication struct {
 	ApplicationType   string `json:"applicationType"`
 }
 
+// stockManagement Chaincode implementation
+type stockManagement struct {
+	SystemNo      string `json:"systemNo"`
+	BorrowAmount  string `json:"borrowAmount"`
+	DeleteAmount  string `json:"deleteAmount"`
+	StockAmount   string `json:"stockAmount"`
+	OverDueAmount string `json:"overDueAmount"`
+}
+
 /*
 //Numbering is a function to decide applicationNo
 func (s *SmartContract) Numbering(APIstub shim.ChaincodeStubInterface) sc.Response {
