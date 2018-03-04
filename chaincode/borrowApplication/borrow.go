@@ -221,6 +221,16 @@ func (s *SmartContract) queryAllApplications(APIstub shim.ChaincodeStubInterface
 	return shim.Success(buffer.Bytes())
 }
 
+func (s *SmartContract) queryStockManagement(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	stockManagementAsBytes, _ := APIstub.GetState(args[0])
+	return shim.Success(stockManagementAsBytes)
+}
+
 // The main function is only relevant in unit test mode. Only included here for completeness.
 func main() {
 	// Create a new Smart Contract
