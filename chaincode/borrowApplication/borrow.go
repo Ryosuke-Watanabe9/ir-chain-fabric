@@ -220,7 +220,7 @@ func (s *SmartContract) changeApplicationStatus(APIstub shim.ChaincodeStubInterf
 func (s *SmartContract) setApplicationRoute(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 5 {
-		return shim.Error("Incorrect number of arguments. Expecting 4")
+		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}
 
 	changeApplicationStatusAsBytes, _ := APIstub.GetState(args[0])
@@ -231,6 +231,7 @@ func (s *SmartContract) setApplicationRoute(APIstub shim.ChaincodeStubInterface,
 	borrowApplication.BKRechecker = args[2]
 	borrowApplication.BKReviewer = args[3]
 	borrowApplication.BKAuthorizer = args[4]
+	borrowApplication.ApplicationStatus = "10"
 
 	changeApplicationStatusAsBytes, _ = json.Marshal(borrowApplication)
 	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
