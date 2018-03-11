@@ -138,6 +138,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.createExchangeApplication(APIstub, args)
 	} else if function == "changeExchangeApplicationStatus" {
 		return s.changeExchangeApplicationStatus(APIstub, args)
+	} else if function == "setExchangeRoute" {
+		return s.setExchangeRoute(APIstub, args)
 	} else if function == "queryExchangeApplication" {
 		return s.queryExchangeApplication(APIstub, args)
 	} else if function == "queryDelConfirmApplication" {
@@ -390,8 +392,8 @@ func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeSt
 	// 承認ステータスを更新
 	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
 
-	// 授受票のOS承認が完了したら、有高管理する
-	if args[1] == "23" {
+	// 授受票のIR承認が完了したら、有高管理する
+	if args[1] == "28" {
 
 		// 対象のSystemNoの有高管理情報を取得
 		stockManagementAsBytes, _ := APIstub.GetState(args[2])
@@ -432,6 +434,31 @@ func (s *SmartContract) changeExchangeApplicationStatus(APIstub shim.ChaincodeSt
 			APIstub.PutState(args[2], stockManagementAsBytes)
 		}
 	}
+	return shim.Success(nil)
+}
+
+// 授受票のIR承認ルート設定
+func (s *SmartContract) setExchangeRoute(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
+	}
+
+	changeApplicationStatusAsBytes, _ := APIstub.GetState(args[0])
+	exchangeApplication := exchangeApplication{}
+
+	// IR承認ルートをセット
+	json.Unmarshal(changeApplicationStatusAsBytes, &exchangeApplication)
+	exchangeApplication.IRRegistrant = args[1]
+	exchangeApplication.IRRechecker = args[2]
+	exchangeApplication.IRReviewer = args[3]
+	exchangeApplication.IRAuthorizer = args[4]
+	// 授受票のIRの承認ステータスは25～28にする
+	exchangeApplication.ApplicationStatus = "25"
+
+	changeApplicationStatusAsBytes, _ = json.Marshal(exchangeApplication)
+	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
+
 	return shim.Success(nil)
 }
 
