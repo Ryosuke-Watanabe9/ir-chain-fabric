@@ -148,6 +148,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.createDelConfirmApplication(APIstub, args)
 	} else if function == "changeDelConfirmApplicationStatus" {
 		return s.changeDelConfirmApplicationStatus(APIstub, args)
+	} else if function == "setDelConfirmRoute" {
+		return s.setDelConfirmRoute(APIstub, args)	
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -530,9 +532,9 @@ func (s *SmartContract) changeDelConfirmApplicationStatus(APIstub shim.Chaincode
 	// update application status
 	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
 
-	// applicationStatusが13(BK承認完了)となった場合、
+	// applicationStatusが38(BK承認完了)となった場合、
 	// stockManagementを変更
-	if args[1] == "13" {
+	if args[1] == "38" {
 
 		// args[2] is systemNo
 		stockManagementAsBytes, _ := APIstub.GetState(args[2])
@@ -568,6 +570,28 @@ func (s *SmartContract) changeDelConfirmApplicationStatus(APIstub shim.Chaincode
 	//if APIstub.GetState("SystemNo:"+args[2]) != NULL {
 	//	APIstub.PutState("SystemNo:"+args[2], stockManagementAsBytes)
 	//}
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) setDelConfirmRoute(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
+	}
+
+	changeApplicationStatusAsBytes, _ := APIstub.GetState(args[0])
+	borrowApplication := borrowApplication{}
+
+	json.Unmarshal(changeApplicationStatusAsBytes, &borrowApplication)
+	borrowApplication.BKRegistrant = args[1]
+	borrowApplication.BKRechecker = args[2]
+	borrowApplication.BKReviewer = args[3]
+	borrowApplication.BKAuthorizer = args[4]
+	borrowApplication.ApplicationStatus = "35"
+
+	changeApplicationStatusAsBytes, _ = json.Marshal(borrowApplication)
+	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
 
 	return shim.Success(nil)
 }
