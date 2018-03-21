@@ -563,7 +563,7 @@ func (s *SmartContract) changeDelConfirmApplicationStatus(APIstub shim.Chaincode
 		stockManagementAsBytes, _ = json.Marshal(stockManagement)
 
 		// update application status
-		APIstub.PutState(args[0], stockManagementAsBytes)
+		APIstub.PutState(args[2], stockManagementAsBytes)
 	}
 
 	// if exchangeApplication is completed, stockManagement write
