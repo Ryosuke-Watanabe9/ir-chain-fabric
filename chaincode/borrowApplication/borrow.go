@@ -581,16 +581,16 @@ func (s *SmartContract) setDelConfirmRoute(APIstub shim.ChaincodeStubInterface, 
 	}
 
 	changeApplicationStatusAsBytes, _ := APIstub.GetState(args[0])
-	borrowApplication := borrowApplication{}
+	delConfirmApplication := delConfirmApplication{}
 
-	json.Unmarshal(changeApplicationStatusAsBytes, &borrowApplication)
-	borrowApplication.BKRegistrant = args[1]
-	borrowApplication.BKRechecker = args[2]
-	borrowApplication.BKReviewer = args[3]
-	borrowApplication.BKAuthorizer = args[4]
-	borrowApplication.ApplicationStatus = "35"
+	json.Unmarshal(changeApplicationStatusAsBytes, &delConfirmApplication)
+	delConfirmApplication.BKRegistrant = args[1]
+	delConfirmApplication.BKRechecker = args[2]
+	delConfirmApplication.BKReviewer = args[3]
+	delConfirmApplication.BKAuthorizer = args[4]
+	delConfirmApplication.ApplicationStatus = "35"
 
-	changeApplicationStatusAsBytes, _ = json.Marshal(borrowApplication)
+	changeApplicationStatusAsBytes, _ = json.Marshal(delConfirmApplication)
 	APIstub.PutState(args[0], changeApplicationStatusAsBytes)
 
 	return shim.Success(nil)
